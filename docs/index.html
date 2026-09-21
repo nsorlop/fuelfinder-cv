@@ -4,147 +4,225 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>FuelFinder CV — gasolina barata en la Comunitat Valenciana</title>
-<meta name="description" content="Mapa de las gasolineras de la Comunitat Valenciana con precios oficiales, la más barata cerca de ti y cuánto cuesta repostar en una marca frente a una low-cost.">
+<meta name="description" content="Mapa de las gasolineras de la Comunitat Valenciana con precios oficiales. La más barata o la más cercana a ti, en el radio que elijas y en tiempo real.">
+<meta name="theme-color" content="#0a5cad">
 <meta property="og:title" content="FuelFinder CV — ¿cuánto te cuesta repostar en una marca?">
-<meta property="og:description" content="Precios oficiales de las gasolineras de la Comunitat Valenciana. Mapa y la más barata cerca de ti.">
+<meta property="og:description" content="Precios oficiales de las gasolineras de la Comunitat Valenciana. La más barata cerca de ti, en tiempo real.">
 <meta property="og:image" content="img/slide_1.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Semi+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
   :root {
-    --bg: #15171c; --panel: #1c1f26; --line: #2a2d35;
-    --text: #ffffff; --text-2: #c3c2b7; --muted: #8d9099; --accent: #f0a027;
-    --lowcost: #3987e5; --marca: #d95926;
+    /* Identidad propia: azul de senal de servicios de carretera sobre fondo claro. */
+    --bg: #fbfbf9; --panel: #ffffff; --line: #e4e3de; --soft: #f1f0ec;
+    --text: #111418; --text-2: #4a4d55; --muted: #6b6e76;
+    --road: #0a5cad; --road-ink: #ffffff;
+    --lowcost: #2a78d6; --marca: #eb6834;       /* series validadas sobre #fbfbf9 */
+    --radius: 10px;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg); color: var(--text);
-    font-family: "Segoe UI", system-ui, -apple-system, sans-serif; }
-  a { color: var(--text); }
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
-  header { padding: 28px 0 8px; }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .08em;
-    font-size: 13px; color: var(--text-2); }
-  .brand::before { content: ""; width: 28px; height: 3px; background: var(--accent); }
-  h1 { font-size: clamp(28px, 4.6vw, 46px); line-height: 1.1; margin: 14px 0 8px; letter-spacing: -.02em; }
-  .lede { color: var(--text-2); font-size: 17px; max-width: 760px; margin: 0; line-height: 1.5; }
+    font-family: "Barlow", "Segoe UI", system-ui, sans-serif; font-size: 16px; }
+  a { color: var(--road); }
+  .num { font-family: "Barlow Semi Condensed", "Barlow", sans-serif; font-variant-numeric: tabular-nums; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 
-  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 26px 0 8px; }
-  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 18px; }
-  .tile .n { font-size: 40px; font-weight: 700; letter-spacing: -.02em; }
-  .tile .n::after { content: ""; display: block; width: 44px; height: 3px; background: var(--accent); margin-top: 8px; }
-  .tile .l { color: var(--text-2); font-size: 14px; margin-top: 10px; line-height: 1.4; }
+  .bar { background: var(--road); color: var(--road-ink); }
+  .bar .wrap { display: flex; align-items: center; gap: 12px; padding-top: 12px; padding-bottom: 12px; }
+  .sign { width: 34px; height: 34px; border: 2px solid #fff; border-radius: 7px; display: grid; place-items: center; font-size: 18px; }
+  .bar .name { font-family: "Barlow Semi Condensed", sans-serif; font-weight: 700; font-size: 21px; letter-spacing: .02em; }
+  .bar .name span { opacity: .75; font-weight: 600; }
+  .bar .src { margin-left: auto; font-size: 13px; opacity: .85; }
+
+  header.hero { padding: 30px 0 6px; }
+  h1 { font-family: "Barlow Semi Condensed", sans-serif; font-weight: 700; font-size: clamp(30px, 4.8vw, 50px);
+    line-height: 1.05; margin: 0 0 10px; letter-spacing: -.01em; }
+  .lede { color: var(--text-2); font-size: 18px; max-width: 780px; margin: 0; line-height: 1.5; }
+
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 24px 0 6px; }
+  .tile { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 18px 16px;
+    border-top: 4px solid var(--road); }
+  .tile .n { font-size: 44px; font-weight: 700; line-height: 1; }
+  .tile .l { color: var(--text-2); font-size: 15px; margin-top: 10px; line-height: 1.4; }
   .note { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
 
-  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 26px 0 12px; }
-  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
-  .seg button { background: transparent; color: var(--text-2); border: 0; padding: 9px 14px; font: inherit;
-    font-size: 14px; cursor: pointer; }
-  .seg button[aria-pressed="true"] { background: var(--panel); color: var(--text); font-weight: 600; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 26px 0 12px; }
+  .seg { display: inline-flex; background: var(--soft); border-radius: 8px; padding: 3px; }
+  .seg button { background: transparent; color: var(--text-2); border: 0; padding: 8px 14px; font: inherit; font-weight: 600;
+    font-size: 15px; cursor: pointer; border-radius: 6px; }
+  .seg button[aria-pressed="true"] { background: var(--panel); color: var(--text); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
   .chips { display: inline-flex; flex-wrap: wrap; gap: 6px; }
-  .chip { border: 1px solid var(--line); background: transparent; color: var(--text-2); border-radius: 999px;
-    padding: 7px 12px; font: inherit; font-size: 13px; cursor: pointer; }
-  .chip[aria-pressed="true"] { color: var(--text); border-color: var(--muted); background: var(--panel); }
-  .near { margin-left: auto; background: var(--accent); color: #15171c; border: 0; border-radius: 8px;
-    padding: 10px 16px; font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
+  .chip { border: 1px solid var(--line); background: var(--panel); color: var(--muted); border-radius: 999px;
+    padding: 6px 12px 6px 10px; font: inherit; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+  .chip i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: inline-block; }
+  .chip[aria-pressed="true"] { color: var(--text); border-color: #c9c8c2; }
+  .chip[aria-pressed="true"] i { background: var(--dot); }
 
-  .stage { display: grid; grid-template-columns: 1fr 330px; gap: 12px; }
-  #map { height: 620px; border-radius: 8px; border: 1px solid var(--line); background: #0e0f12; }
-  .side { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px;
-    max-height: 620px; overflow: auto; }
-  .side h2 { font-size: 16px; margin: 0 0 4px; }
-  .side p { color: var(--text-2); font-size: 14px; line-height: 1.45; margin: 0 0 12px; }
+  .stage { display: grid; grid-template-columns: 1fr 360px; gap: 12px; align-items: start; }
+  #map { height: 680px; border-radius: var(--radius); border: 1px solid var(--line); background: #eeeeea; }
+  .side { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px;
+    max-height: 680px; overflow: auto; }
+  .side h2 { font-family: "Barlow Semi Condensed", sans-serif; font-size: 22px; margin: 0 0 4px; }
+  .hint { color: var(--text-2); font-size: 14px; line-height: 1.45; margin: 0 0 14px; }
+
+  .locate { display: flex; gap: 8px; align-items: stretch; }
+  .btn { flex: 1; background: var(--road); color: var(--road-ink); border: 0; border-radius: 8px; padding: 11px 14px;
+    font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; }
+  .btn:focus-visible, .seg button:focus-visible, .chip:focus-visible { outline: 3px solid #86b6ef; outline-offset: 2px; }
+  .live { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 8px; padding: 0 12px;
+    font-size: 14px; font-weight: 600; cursor: pointer; user-select: none; }
+  .live input { accent-color: var(--road); width: 16px; height: 16px; }
+  .live .dot { width: 8px; height: 8px; border-radius: 50%; background: #c9c8c2; }
+  .live.on .dot { background: #1f9d55; box-shadow: 0 0 0 3px rgba(31,157,85,.2); animation: pulse 1.6s infinite; }
+  @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(31,157,85,0); } }
+
+  .field { margin-top: 14px; }
+  .field .t { display: block; font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase;
+    letter-spacing: .06em; margin-bottom: 6px; }
+  .radius { display: flex; align-items: center; gap: 10px; }
+  .radius input[type=range] { flex: 1; accent-color: var(--road); }
+  .radius input[type=number] { width: 70px; font: inherit; font-size: 15px; padding: 6px 8px; border: 1px solid var(--line);
+    border-radius: 6px; text-align: right; }
+  .status { font-size: 13px; color: var(--muted); margin-top: 10px; min-height: 18px; }
+
+  .answer { margin-top: 14px; display: grid; gap: 8px; }
+  .card { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  .card .k, .listhead { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+  .card .v { display: flex; justify-content: space-between; gap: 8px; margin-top: 3px; }
+  .card .who { font-weight: 600; }
+  .card .p { font-weight: 700; font-size: 19px; }
+  .card .d { font-size: 13px; color: var(--text-2); margin-top: 2px; }
+  .card.best { border-color: var(--road); box-shadow: inset 4px 0 0 var(--road); }
+  .saving { font-size: 13px; color: var(--text-2); }
+
+  .list { margin-top: 12px; }
+  .listhead { margin: 6px 0 2px; }
   .item { border-top: 1px solid var(--line); padding: 10px 0; cursor: pointer; }
-  .item:first-of-type { border-top: 0; }
-  .item .top { display: flex; justify-content: space-between; gap: 10px; }
-  .item .name { font-weight: 600; font-size: 14px; }
-  .item .price { font-weight: 700; font-variant-numeric: tabular-nums; }
-  .item .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
-  .tag { display: inline-block; font-size: 11px; padding: 1px 7px; border-radius: 999px; margin-left: 6px;
-    border: 1px solid var(--line); color: var(--text-2); vertical-align: 1px; }
+  .item .top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .item .name { font-weight: 600; font-size: 15px; }
+  .item .price { font-weight: 700; font-size: 17px; }
+  .item .sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-2); margin-left: 6px; font-weight: 500; }
+  .tag i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
-  .legend { display: flex; align-items: center; gap: 8px; color: var(--text-2); font-size: 13px; margin-top: 10px; }
-  .ramp { display: inline-flex; }
-  .ramp span { width: 26px; height: 10px; }
+  .legend { display: flex; align-items: center; gap: 8px; color: var(--text-2); font-size: 13px; margin-top: 14px;
+    padding-top: 12px; border-top: 1px solid var(--line); }
+  .ramp { display: inline-flex; border-radius: 3px; overflow: hidden; }
+  .ramp span { width: 24px; height: 10px; }
 
-  section.table { margin: 34px 0 0; }
-  section h2 { font-size: 22px; margin: 0 0 12px; }
-  .tbl { width: 100%; overflow-x: auto; }
-  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 620px; }
-  th, td { text-align: right; padding: 10px 12px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  section { margin: 40px 0 0; }
+  section h2 { font-family: "Barlow Semi Condensed", sans-serif; font-size: 28px; margin: 0 0 12px; }
+  .tbl { width: 100%; overflow-x: auto; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; min-width: 680px; }
+  th, td { text-align: right; padding: 11px 14px; border-bottom: 1px solid var(--line); }
+  tr:last-child td { border-bottom: 0; font-weight: 600; background: var(--soft); }
   th:first-child, td:first-child { text-align: left; }
   th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
 
-  .method { margin: 34px 0 0; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .method p, .method li { color: var(--text-2); font-size: 15px; line-height: 1.55; }
+  .method { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+  .method p, .method li { color: var(--text-2); font-size: 16px; line-height: 1.55; }
   .method ul { padding-left: 18px; margin: 0; }
-  footer { margin: 40px 0 0; padding: 18px 0 28px; border-top: 1px solid var(--line); color: var(--muted);
-    font-size: 12px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-  footer b { display: block; color: var(--text-2); font-weight: 600; margin-bottom: 3px; text-transform: uppercase;
-    letter-spacing: .06em; font-size: 11px; }
+  footer { margin: 44px 0 0; background: var(--text); color: #c9cbd1; }
+  footer .wrap { padding-top: 22px; padding-bottom: 26px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; font-size: 13px; }
+  footer b { display: block; color: #fff; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .06em; font-size: 11px; }
+  footer a { color: #fff; }
 
-  .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: var(--panel); color: var(--text); }
-  .leaflet-popup-content { font-family: inherit; font-size: 13px; line-height: 1.45; }
-  .leaflet-container a.leaflet-popup-close-button { color: var(--muted); }
-  .pop-name { font-weight: 700; font-size: 14px; }
+  .leaflet-tile-pane { filter: grayscale(85%) brightness(104%) contrast(92%); }
+  .leaflet-popup-content { font-family: "Barlow", sans-serif; font-size: 14px; line-height: 1.45; }
+  .pop-name { font-weight: 700; font-size: 16px; }
   .pop-sub { color: var(--muted); }
   .pop-prices { margin: 6px 0; }
-  .leaflet-tile-pane { filter: invert(100%) hue-rotate(180deg) brightness(88%) contrast(85%) saturate(40%); }
-  .leaflet-control-attribution { background: rgba(21,23,28,.85) !important; color: var(--muted) !important; }
-  .leaflet-control-attribution a { color: var(--text-2) !important; }
 
-  @media (max-width: 860px) {
+  @media (max-width: 900px) {
     .tiles { grid-template-columns: 1fr; }
     .stage { grid-template-columns: 1fr; }
-    #map { height: 460px; }
-    .near { margin-left: 0; width: 100%; }
+    .side { order: -1; max-height: none; }
+    #map { height: 480px; }
     .method { grid-template-columns: 1fr; }
-    footer { grid-template-columns: 1fr 1fr; }
+    footer .wrap { grid-template-columns: 1fr 1fr; }
+    .bar .src { display: none; }
   }
 </style>
 </head>
 <body>
+<div class="bar"><div class="wrap">
+  <div class="sign" aria-hidden="true">⛽</div>
+  <div class="name">FuelFinder <span>CV</span></div>
+  <div class="src">Precios oficiales · Comunitat Valenciana</div>
+</div></div>
+
 <div class="wrap">
-  <header>
-    <div class="brand">FUELFINDER CV</div>
-    <h1 id="headline">¿Cuánto te cuesta repostar en una gasolinera de marca?</h1>
-    <p class="lede" id="lede">Precios oficiales de todas las gasolineras de la Comunitat Valenciana. Busca la más barata cerca de ti y compara marcas con low-cost.</p>
+  <header class="hero">
+    <h1>¿Cuánto te cuesta repostar en una gasolinera de marca?</h1>
+    <p class="lede">Todas las gasolineras de la Comunitat Valenciana con precios oficiales. Encuentra la más barata o la más cercana a ti, en el radio que quieras y en tiempo real.</p>
   </header>
 
   <div class="tiles" id="tiles" aria-live="polite"></div>
   <p class="note" id="week-note"></p>
 
-  <div class="controls">
+  <div class="toolbar">
     <div class="seg" role="group" aria-label="Combustible">
       <button type="button" data-fuel="g95" aria-pressed="true">Gasolina 95</button>
       <button type="button" data-fuel="diesel" aria-pressed="false">Diésel</button>
     </div>
     <div class="chips" role="group" aria-label="Tipo de gasolinera">
-      <button type="button" class="chip" data-grupo="marca" aria-pressed="true">Marca</button>
-      <button type="button" class="chip" data-grupo="lowcost" aria-pressed="true">Low-cost</button>
-      <button type="button" class="chip" data-grupo="hiper" aria-pressed="true">Hipermercado</button>
-      <button type="button" class="chip" data-grupo="otras" aria-pressed="true">Otras</button>
+      <button type="button" class="chip" data-grupo="marca" aria-pressed="true" style="--dot:var(--marca)"><i></i>Marca</button>
+      <button type="button" class="chip" data-grupo="lowcost" aria-pressed="true" style="--dot:var(--lowcost)"><i></i>Low-cost</button>
+      <button type="button" class="chip" data-grupo="hiper" aria-pressed="true" style="--dot:#6b6e76"><i></i>Hipermercado</button>
+      <button type="button" class="chip" data-grupo="otras" aria-pressed="true" style="--dot:#a9aab0"><i></i>Otras</button>
     </div>
-    <button type="button" class="near" id="near">📍 La más barata cerca de mí</button>
   </div>
 
   <div class="stage">
     <div id="map" role="region" aria-label="Mapa de gasolineras"></div>
-    <aside class="side" id="side">
-      <h2>La más barata cerca de ti</h2>
-      <p>Pulsa el botón y te enseño las gasolineras más baratas en 5 km, ordenadas por precio. Tu ubicación no sale de tu navegador.</p>
+
+    <aside class="side">
+      <h2>Cerca de ti</h2>
+      <p class="hint">Usa tu ubicación para ver la gasolinera más barata y la más cercana. Tu posición no sale de tu navegador.</p>
+
+      <div class="locate">
+        <button type="button" class="btn" id="locate">📍 Usar mi ubicación</button>
+        <label class="live" id="live-wrap" title="Actualiza la búsqueda mientras te mueves">
+          <input type="checkbox" id="live"><span class="dot" aria-hidden="true"></span>Tiempo real
+        </label>
+      </div>
+
+      <div class="field">
+        <span class="t">Ordenar por</span>
+        <div class="seg" role="group" aria-label="Ordenar por">
+          <button type="button" data-order="price" aria-pressed="true">Mejor precio</button>
+          <button type="button" data-order="distance" aria-pressed="false">Más cercana</button>
+          <button type="button" data-order="net" aria-pressed="false">Compensa más</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="t" for="radius-n">Radio de búsqueda</label>
+        <div class="radius">
+          <input type="range" id="radius-r" min="1" max="50" step="1" value="10" aria-label="Radio en kilómetros">
+          <input type="number" id="radius-n" class="num" min="1" max="50" step="1" value="10"> <span>km</span>
+        </div>
+      </div>
+
+      <div class="status" id="status" aria-live="polite"></div>
+      <div class="answer" id="answer"></div>
+      <div class="list" id="list"></div>
+
       <div class="legend">
         <span>Más cara</span>
         <span class="ramp" aria-hidden="true">
-          <span style="background:#184f95"></span><span style="background:#2a78d6"></span><span style="background:#5598e7"></span><span style="background:#86b6ef"></span><span style="background:#cde2fb"></span>
+          <span style="background:#86b6ef"></span><span style="background:#5598e7"></span><span style="background:#2a78d6"></span><span style="background:#1c5cab"></span><span style="background:#0d366b"></span>
         </span>
         <span>Más barata</span>
       </div>
-      <div id="list"></div>
     </aside>
   </div>
 
-  <section class="table">
+  <section>
     <h2>Marca frente a low-cost, por provincia</h2>
-    <div class="tbl"><table id="summary-table"></table></div>
+    <div class="tbl"><table id="summary-table" class="num"></table></div>
   </section>
 
   <section class="method">
@@ -160,23 +238,30 @@
         <li><b>Low-cost:</b> Plenergy, Ballenoil, Petroprix, GasExpress, bonÀrea y las que se anuncian como low cost.</li>
         <li>Hipermercados, independientes y casos dudosos (como Campsa Express) <b>no entran</b> en la comparación: ante la duda, fuera.</li>
         <li>Las distancias son <b>en línea recta</b>, no por carretera.</li>
-        <li>El ahorro por depósito es la mediana para 50 litros de diésel.</li>
+        <li>El ahorro por depósito se calcula para 50 litros.</li>
+        <li><b>«Compensa más»</b> suma al depósito el combustible del desvío: ida y vuelta en línea recta a 6 L/100 km.</li>
       </ul>
     </div>
   </section>
-
-  <footer id="footer"></footer>
 </div>
+
+<footer><div class="wrap" id="footer"></div></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
 (async function () {
-  const RAMP = ["#184f95", "#2a78d6", "#5598e7", "#86b6ef", "#cde2fb"];   // cara -> barata
+  // Rampa ordinal validada sobre fondo claro: cara (clara) -> barata (oscura, destaca).
+  const RAMP = ["#86b6ef", "#5598e7", "#2a78d6", "#1c5cab", "#0d366b"];
   const GRUPOS = { marca: "Marca", lowcost: "Low-cost", hiper: "Hipermercado", otras: "Otras" };
+  const PUNTO = { marca: "#eb6834", lowcost: "#2a78d6", hiper: "#6b6e76", otras: "#a9aab0" };
   const PROVS = ["Valencia", "Alicante", "Castellón", "Comunitat Valenciana"];
-  const es = (x, d = 2) => x == null ? "—" : x.toLocaleString("es-ES", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const DEPOSITO = 50;
+  // Supuesto para el desvio: ida y vuelta en linea recta, a 6 L/100 km. Se declara en la web.
+  const CONSUMO_L_KM = 0.06;
+  const es = (x, d = 2) => x == null ? "—" : x.toLocaleString("es-ES", { minimumFractionDigits: d, maximumFractionDigits: d, useGrouping: "always" });
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const titulo = (s) => String(s ?? "").toLowerCase().replace(/(^|[\s\-\/(])([a-záéíóúàèòñç])/g, (m, a, b) => a + b.toUpperCase());
+  const tag = (g) => `<span class="tag"><i style="background:${PUNTO[g]}"></i>${GRUPOS[g]}</span>`;
 
   const [summary, rows] = await Promise.all([
     fetch("data/summary.json").then((r) => r.json()),
@@ -185,133 +270,177 @@
   const stations = rows.map(([lat, lon, rotulo, grupo, municipio, direccion, horario, g95, diesel]) =>
     ({ lat, lon, rotulo, grupo, municipio, direccion, horario, g95, diesel }));
 
-  // --- Cabecera y tarjetas ---
+  // ---------- Cabecera, tarjetas y tabla ----------
   const v = summary.provincias["Valencia"];
   const fecha = (iso) => new Date(iso + "T12:00:00").toLocaleDateString("es-ES", { day: "numeric", month: "long" });
   document.getElementById("tiles").innerHTML = `
-    <div class="tile"><div class="n">+${es(100 * v.gap_g95, 0)} cts/L</div><div class="l">de sobreprecio en gasolina 95 en las gasolineras de marca de la provincia de Valencia, frente a las low-cost.</div></div>
-    <div class="tile"><div class="n">${es(v.pct_marca_con_lowcost, 0)} %</div><div class="l">de las gasolineras de marca de Valencia tienen una low-cost a menos de ${summary.radio_km} km.</div></div>
-    <div class="tile"><div class="n">${es(v.ahorro_deposito_diesel, 2)} €</div><div class="l">de ahorro por depósito de ${summary.deposito_l} L de diésel repostando en la low-cost más cercana.</div></div>`;
+    <div class="tile"><div class="n num">+${es(100 * v.gap_g95, 0)} cts/L</div><div class="l">paga de más en gasolina 95 quien reposta en una marca en la provincia de Valencia, frente a una low-cost.</div></div>
+    <div class="tile"><div class="n num">${es(v.pct_marca_con_lowcost, 0)} %</div><div class="l">de las gasolineras de marca de Valencia tienen una low-cost a menos de ${summary.radio_km} km.</div></div>
+    <div class="tile"><div class="n num">${es(v.ahorro_deposito_diesel, 2)} €</div><div class="l">de ahorro por depósito de ${summary.deposito_l} L de diésel en la low-cost más cercana.</div></div>`;
   document.getElementById("week-note").textContent =
-    `Media de la semana del ${fecha(summary.semana[0])} al ${fecha(summary.semana[1])}. ` +
-    `Precios del mapa: ${summary.precios_mapa}.`;
-
-  // --- Tabla resumen (vista accesible de las cifras) ---
-  const filas = PROVS.map((p) => {
-    const s = summary.provincias[p];
-    return `<tr><td>${p}</td><td>${s.n.marca}</td><td>${s.n.lowcost}</td>
-      <td>${es(s.median_marca_g95, 3)} €</td><td>${es(s.median_lowcost_g95, 3)} €</td>
-      <td>+${es(100 * s.gap_g95, 1)} cts</td><td>${es(s.pct_marca_con_lowcost, 0)} %</td>
-      <td>${es(s.ahorro_deposito_diesel, 2)} €</td></tr>`;
-  }).join("");
+    `Media de la semana del ${fecha(summary.semana[0])} al ${fecha(summary.semana[1])}. Precios del mapa: ${summary.precios_mapa}.`;
   document.getElementById("summary-table").innerHTML = `
     <thead><tr><th>Zona</th><th>Marca</th><th>Low-cost</th><th>Gasolina 95 marca</th><th>Gasolina 95 low-cost</th>
-    <th>Diferencia</th><th>Marcas con low-cost &lt; ${summary.radio_km} km</th><th>Ahorro por depósito</th></tr></thead>
-    <tbody>${filas}</tbody>`;
+    <th>Diferencia</th><th>Marcas con low-cost &lt; ${summary.radio_km} km</th><th>Ahorro por depósito</th></tr></thead><tbody>` +
+    PROVS.map((p) => { const s = summary.provincias[p]; return `<tr><td>${p}</td><td>${s.n.marca}</td><td>${s.n.lowcost}</td>
+      <td>${es(s.median_marca_g95, 3)} €</td><td>${es(s.median_lowcost_g95, 3)} €</td><td>+${es(100 * s.gap_g95, 1)} cts</td>
+      <td>${es(s.pct_marca_con_lowcost, 0)} %</td><td>${es(s.ahorro_deposito_diesel, 2)} €</td></tr>`; }).join("") + "</tbody>";
 
-  // --- Mapa ---
-  const map = L.map("map", { preferCanvas: true, zoomControl: true }).setView([39.45, -0.55], 8);
-  // Teselas de OpenStreetMap (sin clave). Se oscurecen con un filtro CSS sobre su
-  // propia capa; los marcadores van en otra capa y conservan sus colores.
+  // ---------- Mapa ----------
+  const map = L.map("map", { preferCanvas: true }).setView([39.45, -0.55], 8);
   L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · Precios: MITECO',
+    maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · Precios: MITECO',
   }).addTo(map);
 
-  let fuel = "g95";
+  let fuel = "g95", orden = "price", radioKm = 10;
   const activos = new Set(Object.keys(GRUPOS));
   const capa = L.layerGroup().addTo(map);
   const marcadores = new Map();
+  const ir = (s) => `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}`;
 
   function cortes(valores) {
     const s = [...valores].sort((a, b) => a - b);
     return [0.2, 0.4, 0.6, 0.8].map((q) => s[Math.floor(q * (s.length - 1))]);
   }
-  function colorDe(precio, c) {
-    // Cuantos mas cortes supera, mas cara: cara = oscura, barata = brillante.
-    const i = c.filter((x) => precio > x).length;
-    return RAMP[RAMP.length - 1 - i];
-  }
-  const ir = (s) => `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lon}`;
-  function popup(s) {
-    return `<div class="pop-name">${esc(titulo(s.rotulo) || "Sin rótulo")} <span class="tag">${GRUPOS[s.grupo]}</span></div>
-      <div class="pop-sub">${esc(titulo(s.direccion))}, ${esc(titulo(s.municipio))}</div>
-      <div class="pop-prices">Gasolina 95: <b>${es(s.g95, 3)} €</b> · Diésel: <b>${es(s.diesel, 3)} €</b></div>
-      <div class="pop-sub">Horario: ${esc(s.horario)}</div>
-      <div style="margin-top:6px"><a href="${ir(s)}" target="_blank" rel="noopener">Cómo llegar →</a></div>`;
-  }
+  const colorDe = (p, c) => RAMP[RAMP.length - 1 - c.filter((x) => p > x).length];
+  const popup = (s) => `<div class="pop-name">${esc(titulo(s.rotulo) || "Sin rótulo")}${tag(s.grupo)}</div>
+    <div class="pop-sub">${esc(titulo(s.direccion))}, ${esc(titulo(s.municipio))}</div>
+    <div class="pop-prices">Gasolina 95: <b>${es(s.g95, 3)} €</b> · Diésel: <b>${es(s.diesel, 3)} €</b></div>
+    <div class="pop-sub">Horario: ${esc(s.horario)}</div>
+    <div style="margin-top:6px"><a href="${ir(s)}" target="_blank" rel="noopener">Cómo llegar →</a></div>`;
 
   function pintar() {
     capa.clearLayers(); marcadores.clear();
     const visibles = stations.filter((s) => activos.has(s.grupo) && s[fuel] != null);
     const c = cortes(visibles.map((s) => s[fuel]));
     for (const s of visibles) {
-      const m = L.circleMarker([s.lat, s.lon], {
-        radius: 6, weight: 1.5, color: "#15171c", fillColor: colorDe(s[fuel], c), fillOpacity: 0.95,
-      }).bindPopup(popup(s));
-      m.bindTooltip(`${esc(titulo(s.rotulo))} · ${es(s[fuel], 3)} €`, { direction: "top", offset: [0, -6] });
+      const m = L.circleMarker([s.lat, s.lon], { radius: 6, weight: 1.5, color: "#ffffff", fillColor: colorDe(s[fuel], c), fillOpacity: 1 })
+        .bindPopup(popup(s)).bindTooltip(`${esc(titulo(s.rotulo))} · ${es(s[fuel], 3)} €`, { direction: "top", offset: [0, -6] });
       m.addTo(capa); marcadores.set(s, m);
     }
   }
   pintar();
 
-  document.querySelectorAll("[data-fuel]").forEach((b) => b.addEventListener("click", () => {
-    fuel = b.dataset.fuel;
-    document.querySelectorAll("[data-fuel]").forEach((x) => x.setAttribute("aria-pressed", x === b));
-    pintar(); if (ultimaPos) cerca(ultimaPos);
-  }));
-  document.querySelectorAll("[data-grupo]").forEach((b) => b.addEventListener("click", () => {
-    const g = b.dataset.grupo;
-    if (activos.has(g) && activos.size > 1) activos.delete(g); else activos.add(g);
-    b.setAttribute("aria-pressed", activos.has(g));
-    pintar(); if (ultimaPos) cerca(ultimaPos);
-  }));
-
-  // --- La mas barata cerca de mi (todo en el navegador) ---
+  // ---------- Cerca de ti ----------
   const km = (a, b) => {
     const r = Math.PI / 180, dLat = (b.lat - a.lat) * r, dLon = (b.lon - a.lon) * r;
     const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLon / 2) ** 2;
     return 12742 * Math.asin(Math.sqrt(h));
   };
-  let ultimaPos = null, yo = null;
-  function cerca(pos) {
-    ultimaPos = pos;
-    const lista = stations
-      .filter((s) => activos.has(s.grupo) && s[fuel] != null)
-      .map((s) => ({ s, d: km(pos, s) }))
-      .filter((x) => x.d <= 5)
-      .sort((a, b) => a.s[fuel] - b.s[fuel] || a.d - b.d)
-      .slice(0, 8);
-    const cont = document.getElementById("list");
-    if (!lista.length) {
-      cont.innerHTML = `<p>No hay gasolineras en 5 km con los filtros actuales.</p>`; return;
+  const $status = document.getElementById("status"), $answer = document.getElementById("answer"), $list = document.getElementById("list");
+  let pos = null, yo = null, circulo = null, encuadrado = false, watchId = null, ultimoCalculo = 0;
+
+  function buscar() {
+    if (!pos) return;
+    const enRadio = stations.filter((s) => activos.has(s.grupo) && s[fuel] != null)
+      .map((s) => ({ s, d: km(pos, s) })).filter((x) => x.d <= radioKm);
+
+    if (yo) yo.remove(); if (circulo) circulo.remove();
+    circulo = L.circle([pos.lat, pos.lon], { radius: radioKm * 1000, color: "#0a5cad", weight: 1.5, fillColor: "#0a5cad", fillOpacity: 0.05, interactive: false }).addTo(map);
+    yo = L.circleMarker([pos.lat, pos.lon], { radius: 8, color: "#ffffff", weight: 3, fillColor: "#0a5cad", fillOpacity: 1 }).bindTooltip("Estás aquí").addTo(map);
+    if (!encuadrado) { map.fitBounds(circulo.getBounds(), { padding: [20, 20] }); encuadrado = true; }
+
+    if (!enRadio.length) {
+      $answer.innerHTML = ""; $list.innerHTML = `<p class="hint">No hay gasolineras en ${radioKm} km con los filtros actuales. Amplía el radio.</p>`; return;
     }
-    const mejor = lista[0].s[fuel];
-    cont.innerHTML = lista.map(({ s, d }, i) => `
-      <div class="item" data-i="${i}">
-        <div class="top"><span class="name">${esc(titulo(s.rotulo) || "Sin rótulo")}<span class="tag">${GRUPOS[s.grupo]}</span></span>
-          <span class="price">${es(s[fuel], 3)} €</span></div>
-        <div class="sub">${esc(titulo(s.municipio))} · ${es(d, 1)} km en línea recta${i === 0 ? "" : ` · +${es(50 * (s[fuel] - mejor), 2)} € por depósito`}</div>
-      </div>`).join("");
-    cont.querySelectorAll(".item").forEach((el) => el.addEventListener("click", () => {
+    const barata = [...enRadio].sort((a, b) => a.s[fuel] - b.s[fuel] || a.d - b.d)[0];
+    const cercana = [...enRadio].sort((a, b) => a.d - b.d)[0];
+    const extra = (x) => DEPOSITO * (x.s[fuel] - barata.s[fuel]);
+    // Coste real de repostar alli: el deposito mas el combustible del desvio.
+    const coste = (x) => x.s[fuel] * (DEPOSITO + 2 * x.d * CONSUMO_L_KM);
+    const compensa = [...enRadio].sort((a, b) => coste(a) - coste(b))[0];
+    const tarjeta = (k, x, clase) => `<div class="card ${clase}"><div class="k">${k}</div>
+      <div class="v"><span class="who">${esc(titulo(x.s.rotulo) || "Sin rótulo")}${tag(x.s.grupo)}</span><span class="p num">${es(x.s[fuel], 3)} €</span></div>
+      <div class="d">${esc(titulo(x.s.municipio))} · ${es(x.d, 1)} km en línea recta · <a href="${ir(x.s)}" target="_blank" rel="noopener">Cómo llegar</a></div></div>`;
+    const vistas = new Set();
+    const bloque = (k, x, clase) => { if (vistas.has(x.s)) return ""; vistas.add(x.s); return tarjeta(k, x, clase); };
+    const neto = coste(cercana) - coste(compensa);
+    $answer.innerHTML =
+      bloque("La que más compensa", compensa, "best") +
+      bloque(`La más barata en ${radioKm} km`, barata, "") +
+      bloque("La más cercana", cercana, "") +
+      (compensa.s === cercana.s
+        ? `<div class="saving">La más cercana ya es la que más compensa.</div>`
+        : `<div class="saving">Frente a la más cercana, te ahorras <b class="num">${es(neto, 2)} €</b> por depósito de ${DEPOSITO} L, ya descontado el combustible del desvío.</div>`);
+
+    const criterio = {
+      price: [(a, b) => a.s[fuel] - b.s[fuel] || a.d - b.d, "por precio"],
+      distance: [(a, b) => a.d - b.d, "por distancia"],
+      net: [(a, b) => coste(a) - coste(b), "por coste real, con el desvío"],
+    }[orden];
+    const lista = [...enRadio].sort(criterio[0]).slice(0, 12);
+    // En "Compensa mas" la diferencia es neta (con el desvio); en los demas, por precio.
+    const diferencia = (x) => {
+      const d = orden === "net" ? coste(x) - coste(compensa) : extra(x);
+      if (d < 0.005) return orden === "net" ? "la que más compensa" : "la más barata";
+      return `+${es(d, 2)} € por depósito${orden === "net" ? " con el desvío" : ""}`;
+    };
+    $list.innerHTML = `<div class="listhead">${enRadio.length} gasolineras en ${radioKm} km · ${criterio[1]}</div>` +
+      lista.map((x, i) => `<div class="item" data-i="${i}"><div class="top"><span class="name">${esc(titulo(x.s.rotulo) || "Sin rótulo")}${tag(x.s.grupo)}</span>
+        <span class="price num">${es(x.s[fuel], 3)} €</span></div>
+        <div class="sub">${esc(titulo(x.s.municipio))} · ${es(x.d, 1)} km · ${diferencia(x)}</div></div>`).join("");
+    $list.querySelectorAll(".item").forEach((el) => el.addEventListener("click", () => {
       const m = marcadores.get(lista[+el.dataset.i].s); if (m) { map.setView(m.getLatLng(), 15); m.openPopup(); }
     }));
-    if (yo) yo.remove();
-    yo = L.circleMarker([pos.lat, pos.lon], { radius: 8, color: "#15171c", weight: 2, fillColor: "#f0a027", fillOpacity: 1 })
-      .bindTooltip("Estás aquí").addTo(map);
-    map.fitBounds(L.latLngBounds([[pos.lat, pos.lon], ...lista.map(({ s }) => [s.lat, s.lon])]).pad(0.2));
   }
-  document.getElementById("near").addEventListener("click", () => {
-    const cont = document.getElementById("list");
-    if (!navigator.geolocation) { cont.innerHTML = "<p>Tu navegador no permite obtener la ubicación.</p>"; return; }
-    cont.innerHTML = "<p>Buscando tu ubicación…</p>";
-    navigator.geolocation.getCurrentPosition(
-      (p) => cerca({ lat: p.coords.latitude, lon: p.coords.longitude }),
-      () => { cont.innerHTML = "<p>No he podido obtener tu ubicación. Revisa el permiso del navegador, o haz zoom en el mapa y pulsa una gasolinera.</p>"; },
-      { enableHighAccuracy: true, timeout: 10000 });
+
+  function nuevaPosicion(p, enVivo) {
+    pos = { lat: p.coords.latitude, lon: p.coords.longitude };
+    const precision = p.coords.accuracy ? ` · precisión ±${Math.round(p.coords.accuracy)} m` : "";
+    const hora = new Date().toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+    $status.textContent = (enVivo ? "Siguiendo tu ubicación" : "Ubicación obtenida") + precision + ` · ${hora}`;
+    // En tiempo real, recalcular como mucho cada 2 s para no saturar el mapa.
+    const ahora = Date.now();
+    if (!enVivo || ahora - ultimoCalculo > 2000) { ultimoCalculo = ahora; buscar(); }
+  }
+  function errorUbicacion(e) {
+    $status.textContent = e && e.code === 1
+      ? "No tengo permiso para usar tu ubicación. Actívalo en el navegador."
+      : "No he podido obtener tu ubicación. Inténtalo de nuevo.";
+    detenerVivo();
+  }
+  const opcionesGeo = { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 };
+
+  document.getElementById("locate").addEventListener("click", () => {
+    if (!navigator.geolocation) { $status.textContent = "Tu navegador no permite obtener la ubicación."; return; }
+    encuadrado = false; $status.textContent = "Buscando tu ubicación…";
+    navigator.geolocation.getCurrentPosition((p) => nuevaPosicion(p, false), errorUbicacion, opcionesGeo);
   });
 
-  // --- Pie con metadatos de la generacion ---
+  const $live = document.getElementById("live"), $liveWrap = document.getElementById("live-wrap");
+  function detenerVivo() {
+    if (watchId != null) navigator.geolocation.clearWatch(watchId);
+    watchId = null; $live.checked = false; $liveWrap.classList.remove("on");
+  }
+  $live.addEventListener("change", () => {
+    if (!$live.checked) { detenerVivo(); $status.textContent = pos ? "Seguimiento detenido." : ""; return; }
+    if (!navigator.geolocation) { $status.textContent = "Tu navegador no permite obtener la ubicación."; $live.checked = false; return; }
+    $liveWrap.classList.add("on"); encuadrado = false; $status.textContent = "Activando seguimiento…";
+    watchId = navigator.geolocation.watchPosition((p) => nuevaPosicion(p, true), errorUbicacion, opcionesGeo);
+  });
+
+  // ---------- Controles ----------
+  function setPressed(sel, btn) { document.querySelectorAll(sel).forEach((x) => x.setAttribute("aria-pressed", x === btn)); }
+  document.querySelectorAll("[data-fuel]").forEach((b) => b.addEventListener("click", () => {
+    fuel = b.dataset.fuel; setPressed("[data-fuel]", b); pintar(); buscar();
+  }));
+  document.querySelectorAll("[data-order]").forEach((b) => b.addEventListener("click", () => {
+    orden = b.dataset.order; setPressed("[data-order]", b); buscar();
+  }));
+  document.querySelectorAll("[data-grupo]").forEach((b) => b.addEventListener("click", () => {
+    const g = b.dataset.grupo;
+    if (activos.has(g) && activos.size > 1) activos.delete(g); else activos.add(g);
+    b.setAttribute("aria-pressed", activos.has(g)); pintar(); buscar();
+  }));
+  const $r = document.getElementById("radius-r"), $n = document.getElementById("radius-n");
+  function setRadio(valor) {
+    const x = Math.max(1, Math.min(50, Math.round(+valor || 10)));
+    radioKm = x; $r.value = x; $n.value = x; encuadrado = false; buscar();
+  }
+  $r.addEventListener("input", () => setRadio($r.value));
+  $n.addEventListener("change", () => setRadio($n.value));
+
+  // ---------- Pie ----------
   document.getElementById("footer").innerHTML = `
     <div><b>Datos</b>MITECO · Geoportal de Gasolineras (datos abiertos)</div>
     <div><b>Precios del mapa</b>${esc(summary.precios_mapa)}</div>

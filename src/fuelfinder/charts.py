@@ -1,8 +1,10 @@
 """Diapositivas para el carrusel de LinkedIn (PNG 1080x1350).
 
-Paleta validada con el validador de la guia de visualizacion sobre la superficie
-#15171c: azul/naranja pasan todas las comprobaciones (CVD dE 26.8, contraste >= 3:1).
-El ambar es acento de marca: nunca codifica datos.
+Identidad propia: azul de senal de servicios de carretera sobre fondo claro, y la
+tipografia Barlow (inspirada en la rotulacion de carreteras, licencia OFL, en
+assets/fonts). Paleta validada sobre la superficie #fbfbf9: azul/naranja pasan todas
+las comprobaciones (CVD dE 24.7, contraste >= 3:1). El azul de carretera es
+identidad visual: nunca codifica datos.
 """
 
 from __future__ import annotations
@@ -14,21 +16,26 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib import font_manager  # noqa: E402
 
-SURFACE = "#15171c"
-TEXT = "#ffffff"
-TEXT_2 = "#c3c2b7"
-MUTED = "#8d9099"
-GRID = "#2a2d35"
-ACCENT = "#f0a027"          # marca personal, solo decorativo
-LOWCOST_C = "#3987e5"       # serie 1 (azul)
-MARCA_C = "#d95926"         # serie 2 (naranja)
+FUENTES = Path(__file__).resolve().parents[2] / "assets" / "fonts"
+for _ttf in FUENTES.glob("*.ttf"):
+    font_manager.fontManager.addfont(str(_ttf))
+
+SURFACE = "#fbfbf9"
+TEXT = "#111418"
+TEXT_2 = "#4a4d55"
+MUTED = "#6b6e76"
+GRID = "#e4e3de"
+ACCENT = "#0a5cad"          # azul de senal de carretera: identidad, no datos
+LOWCOST_C = "#2a78d6"       # serie 1 (azul)
+MARCA_C = "#eb6834"         # serie 2 (naranja)
 
 W, H, DPI = 10.8, 13.5, 100
 REPO = "github.com/nsorlop/fuelfinder-cv"
 
 plt.rcParams.update({
-    "font.family": ["Segoe UI", "DejaVu Sans"],
+    "font.family": ["Barlow", "Segoe UI", "DejaVu Sans"],
     "figure.facecolor": SURFACE, "axes.facecolor": SURFACE,
     "text.color": TEXT, "axes.edgecolor": GRID,
 })
@@ -49,13 +56,15 @@ def _fecha_es(iso: str) -> str:
 
 
 def _lienzo(n: int, total: int):
+    """Cabecera azul tipo panel de carretera, como la barra superior de la web."""
     fig = plt.figure(figsize=(W, H), dpi=DPI)
-    fig.add_artist(plt.Rectangle((0.07, 0.935), 0.09, 0.006, color=ACCENT,
+    fig.add_artist(plt.Rectangle((0, 0.925), 1, 0.075, color=ACCENT,
                                  transform=fig.transFigure))
-    fig.text(0.07, 0.955, "FUELFINDER CV", color=TEXT_2, fontsize=15,
-             fontweight="bold")
-    fig.text(0.93, 0.955, f"{n}/{total}", color=MUTED, fontsize=15, ha="right")
-    fig.text(0.07, 0.035, REPO, color=MUTED, fontsize=14)
+    fig.text(0.07, 0.962, "FUELFINDER CV", color="#ffffff", fontsize=19,
+             fontweight="bold", va="center")
+    fig.text(0.93, 0.962, f"{n}/{total}", color="#ffffff", fontsize=17, ha="right",
+             va="center", alpha=0.85)
+    fig.text(0.07, 0.035, REPO, color=MUTED, fontsize=15)
     return fig
 
 
@@ -159,11 +168,13 @@ def metodologia(r: dict, ruta: Path, total: int) -> None:
             fig.text(0.07, y, etiqueta, fontsize=21, fontweight="bold", color=TEXT)
         fig.text(0.30, y, texto, fontsize=21, color=TEXT_2)
         y -= 0.045
-    fig.text(0.07, 0.25, "Mapa con todas las gasolineras y la más", fontsize=26,
+    fig.text(0.07, 0.27, "Mapa con todas las gasolineras: la más", fontsize=26,
              fontweight="bold")
-    fig.text(0.07, 0.21, "barata cerca de ti: enlace en el post.", fontsize=26,
+    fig.text(0.07, 0.235, "barata, la más cercana o la que más compensa,", fontsize=26,
              fontweight="bold")
-    fig.text(0.07, 0.15, "Código abierto (MIT) y reproducible.", fontsize=21, color=TEXT_2)
+    fig.text(0.07, 0.20, "en tiempo real. Enlace en el post.", fontsize=26,
+             fontweight="bold")
+    fig.text(0.07, 0.14, "Código abierto (MIT) y reproducible.", fontsize=21, color=TEXT_2)
     _guardar(fig, ruta)
 
 

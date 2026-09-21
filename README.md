@@ -27,7 +27,11 @@ La diferencia es estable: en Valencia osciló entre 26 y 28 céntimos por litro 
 ## Qué hace
 
 - **Mapa** de todas las gasolineras de la Comunitat, coloreadas de más cara a más barata.
-- **La más barata cerca de ti**: usa la ubicación del navegador y lista las más baratas en 5 km. La ubicación nunca sale del navegador.
+- **Cerca de ti**, con el radio que elijas (de 1 a 50 km) y tres criterios:
+  - **Mejor precio**: la más barata dentro del radio.
+  - **Más cercana**: la que tienes más a mano.
+  - **Compensa más**: la que menos te cuesta *de verdad*, porque suma al depósito el combustible del desvío (ida y vuelta en línea recta, a 6 L/100 km). Con radios grandes, la más barata puede no compensar el viaje.
+- **Tiempo real**: sigue tu ubicación mientras te mueves y recalcula la búsqueda sola. La ubicación nunca sale del navegador.
 - **Filtros** por combustible (gasolina 95 o diésel) y por tipo de gasolinera.
 - **La comparativa** de marca frente a low-cost por provincia.
 
@@ -56,6 +60,7 @@ Revisar los rótulos a mano cambió el resultado: la mayor cadena low-cost de la
 - Las distancias son **en línea recta**, no por carretera.
 - El ahorro por depósito es una **mediana** para 50 litros de diésel.
 - Los precios del mapa son los del momento en que se generó la web; la fecha aparece en la propia página.
+- La lógica de «cerca de ti» corre en el navegador (JavaScript) y no la cubren los tests de Python: se ha verificado a mano en el navegador, simulando ubicaciones.
 
 ## Reproducirlo
 
@@ -74,3 +79,5 @@ python -m http.server --directory docs     # y abre http://localhost:8000
 Precios: **Ministerio para la Transición Ecológica y el Reto Demográfico — Geoportal de Gasolineras**, datos abiertos. Mapa base: © colaboradores de OpenStreetMap.
 
 Código: [MIT](LICENSE) © 2026 Néstor Soriano López
+
+Tipografía de las imágenes: [Barlow](https://github.com/jpt/barlow), licencia SIL Open Font License (incluida en `assets/fonts/`).
