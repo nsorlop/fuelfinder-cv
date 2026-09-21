@@ -88,4 +88,4 @@ Precios: **Ministerio para la Transición Ecológica y el Reto Demográfico — 
 
 Código: [MIT](LICENSE) © 2026 Néstor Soriano López
 
-Tipografía de las imágenes: [Barlow](https://github.com/jpt/barlow), licencia SIL Open Font License (incluida en `assets/fonts/`).
+Tipografías: [Source Serif 4](https://github.com/adobe-fonts/source-serif) y [Source Sans 3](https://github.com/adobe-fonts/source-sans), de Adobe, con licencia SIL Open Font License (incluidas en `assets/fonts/` para generar las imágenes).
