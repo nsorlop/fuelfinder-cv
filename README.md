@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <a href="https://nsorlop.github.io/fuelfinder-cv/"><b>→ Abrir el mapa</b></a>
+  <a href="https://nsorlop.github.io/fuelfinder-cv/docs/"><b>→ Abrir el mapa</b></a>
 </p>
 
 <p align="center">
