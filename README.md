@@ -1,0 +1,76 @@
+<h1 align="center">⛽ FuelFinder CV</h1>
+
+<p align="center">
+  <b>¿Cuánto te cuesta repostar en una gasolinera de marca en la Comunitat Valenciana?</b><br>
+  Mapa de las 1.315 gasolineras con precios oficiales, y la más barata cerca de ti.
+</p>
+
+<p align="center">
+  <a href="https://nsorlop.github.io/fuelfinder-cv/"><b>→ Abrir el mapa</b></a>
+</p>
+
+<p align="center"><img src="docs/img/slide_1.png" width="31%"> <img src="docs/img/slide_2.png" width="31%"> <img src="docs/img/slide_4.png" width="31%"></p>
+
+## El dato
+
+Media de la semana del 14 al 20 de septiembre de 2026, con los precios oficiales del Ministerio:
+
+| Zona | Gasolina 95, marca | Gasolina 95, low-cost | Sobreprecio | Marcas con una low-cost a menos de 3 km | Ahorro por depósito de 50 L de diésel |
+|---|---:|---:|---:|---:|---:|
+| **Valencia** | 2,024 € | 1,756 € | **+26,9 cts/L** | **66 %** | **9,56 €** |
+| Alicante | 2,019 € | 1,818 € | +20,1 cts/L | 63 % | 7,82 € |
+| Castellón | 1,991 € | 1,798 € | +19,3 cts/L | 53 % | 11,43 € |
+| Comunitat Valenciana | 2,017 € | 1,796 € | +22,1 cts/L | 63 % | 9,16 € |
+
+La diferencia es estable: en Valencia osciló entre 26 y 28 céntimos por litro los siete días.
+
+## Qué hace
+
+- **Mapa** de todas las gasolineras de la Comunitat, coloreadas de más cara a más barata.
+- **La más barata cerca de ti**: usa la ubicación del navegador y lista las más baratas en 5 km. La ubicación nunca sale del navegador.
+- **Filtros** por combustible (gasolina 95 o diésel) y por tipo de gasolinera.
+- **La comparativa** de marca frente a low-cost por provincia.
+
+## Cómo funciona
+
+```
+fetch ──► normalize ──► brands ──► analyze ──► build
+MITECO    coma decimal   marca /     medianas   JSON para la web
+(7 días)  y coordenadas  low-cost    por día    + carrusel de LinkedIn
+```
+
+La web es **estática** (GitHub Pages, Leaflet y OpenStreetMap): no hay servidor, y todo el cálculo de «cerca de mí» ocurre en el navegador.
+
+## Decisiones que importan
+
+**La clasificación es conservadora a propósito.** Solo cuentan como *marca* Repsol, Cepsa, Moeve, BP, Shell, Galp y Petronor, y como *low-cost* las cadenas cuyo modelo es el precio (Plenergy, Ballenoil, Petroprix, GasExpress, bonÀrea). Hipermercados, independientes y casos ambiguos —como Campsa Express, la marca barata de Repsol— quedan **fuera** de la comparación. Ante la duda, fuera: así ningún error de clasificación puede inflar la diferencia.
+
+Revisar los rótulos a mano cambió el resultado: la mayor cadena low-cost de la Comunitat, con 87 gasolineras, es **Plenergy**, el nombre actual de Plenoil. Una lista escrita de memoria la habría dejado fuera.
+
+**El servidor del Ministerio solo acepta cifrados TLS antiguos.** OpenSSL 3 los rechaza con su nivel de seguridad por defecto y la conexión se corta en el saludo. El arreglo baja el *nivel de cifrado* a 1, **sin desactivar la verificación del certificado** —el arreglo que circula por los foros (`verify=False`) sería un fallo de seguridad—. Hay un test que protege esa decisión.
+
+**Se usa el histórico oficial, no una foto.** Las cifras son la media de siete días, un registro diario, para que no dependan de un día concreto.
+
+## Limitaciones
+
+- Las distancias son **en línea recta**, no por carretera.
+- El ahorro por depósito es una **mediana** para 50 litros de diésel.
+- Los precios del mapa son los del momento en que se generó la web; la fecha aparece en la propia página.
+
+## Reproducirlo
+
+```bash
+git clone https://github.com/nsorlop/fuelfinder-cv.git
+cd fuelfinder-cv
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -e ".[dev]"
+pytest -q                                  # 53 tests, sin red
+python -m fuelfinder.build 2026-09-21      # semana anterior a esa fecha
+python -m http.server --directory docs     # y abre http://localhost:8000
+```
+
+## Datos y licencia
+
+Precios: **Ministerio para la Transición Ecológica y el Reto Demográfico — Geoportal de Gasolineras**, datos abiertos. Mapa base: © colaboradores de OpenStreetMap.
+
+Código: [MIT](LICENSE) © 2026 Néstor Soriano López

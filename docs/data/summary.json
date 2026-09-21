@@ -1,0 +1,114 @@
+{
+ "generado": "2026-09-21T14:34",
+ "precios_mapa": "21/09/2026 14:34:53",
+ "semana": [
+  "2026-09-14",
+  "2026-09-20"
+ ],
+ "n_estaciones": 1315,
+ "radio_km": 3,
+ "deposito_l": 50,
+ "provincias": {
+  "Valencia": {
+   "n": {
+    "marca": 263,
+    "lowcost": 88,
+    "hiper": 12,
+    "otras": 273
+   },
+   "marcas_total": 263,
+   "gap_g95": 0.2685714285714287,
+   "gap_g95_rango": [
+    0.2599999999999998,
+    0.276
+   ],
+   "gap_diesel": 0.18978571428571445,
+   "gap_diesel_rango": [
+    0.16600000000000015,
+    0.2100000000000002
+   ],
+   "median_marca_g95": 2.024142857142857,
+   "median_lowcost_g95": 1.7555714285714286,
+   "median_marca_diesel": 1.9576428571428572,
+   "median_lowcost_diesel": 1.7678571428571428,
+   "pct_marca_con_lowcost": 65.5648527043992,
+   "ahorro_deposito_diesel": 9.557142857142862
+  },
+  "Alicante": {
+   "n": {
+    "marca": 252,
+    "lowcost": 79,
+    "hiper": 12,
+    "otras": 137
+   },
+   "marcas_total": 252,
+   "gap_g95": 0.20114285714285715,
+   "gap_g95_rango": [
+    0.18600000000000017,
+    0.2260000000000002
+   ],
+   "gap_diesel": 0.15057142857142872,
+   "gap_diesel_rango": [
+    0.1180000000000001,
+    0.16600000000000015
+   ],
+   "median_marca_g95": 2.0187142857142857,
+   "median_lowcost_g95": 1.8175714285714286,
+   "median_marca_diesel": 1.9617142857142857,
+   "median_lowcost_diesel": 1.8111428571428572,
+   "pct_marca_con_lowcost": 63.45621252453551,
+   "ahorro_deposito_diesel": 7.821428571428576
+  },
+  "Castellón": {
+   "n": {
+    "marca": 78,
+    "lowcost": 31,
+    "hiper": 5,
+    "otras": 84
+   },
+   "marcas_total": 77,
+   "gap_g95": 0.19300000000000014,
+   "gap_g95_rango": [
+    0.18000000000000016,
+    0.20500000000000007
+   ],
+   "gap_diesel": 0.21171428571428577,
+   "gap_diesel_rango": [
+    0.20000000000000018,
+    0.2200000000000002
+   ],
+   "median_marca_g95": 1.9905714285714287,
+   "median_lowcost_g95": 1.7975714285714286,
+   "median_marca_diesel": 2.004142857142857,
+   "median_lowcost_diesel": 1.7924285714285715,
+   "pct_marca_con_lowcost": 52.77842458293586,
+   "ahorro_deposito_diesel": 11.428571428571429
+  },
+  "Comunitat Valenciana": {
+   "n": {
+    "marca": 593,
+    "lowcost": 198,
+    "hiper": 29,
+    "otras": 494
+   },
+   "marcas_total": 592,
+   "gap_g95": 0.22114285714285714,
+   "gap_g95_rango": [
+    0.20999999999999996,
+    0.24
+   ],
+   "gap_diesel": 0.17357142857142868,
+   "gap_diesel_rango": [
+    0.15000000000000013,
+    0.19000000000000017
+   ],
+   "median_marca_g95": 2.0172857142857143,
+   "median_lowcost_g95": 1.796142857142857,
+   "median_marca_diesel": 1.962357142857143,
+   "median_lowcost_diesel": 1.7887857142857142,
+   "pct_marca_con_lowcost": 63.01462447160868,
+   "ahorro_deposito_diesel": 9.157142857142862
+  }
+ },
+ "fuente": "Ministerio para la Transición Ecológica y el Reto Demográfico — Geoportal de Gasolineras (datos abiertos)"
+}
