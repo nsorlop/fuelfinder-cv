@@ -9,6 +9,12 @@
   <a href="https://nsorlop.github.io/fuelfinder-cv/"><b>→ Abrir el mapa</b></a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/nsorlop/fuelfinder-cv/actions/workflows/ci.yml"><img src="https://github.com/nsorlop/fuelfinder-cv/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://github.com/nsorlop/fuelfinder-cv/actions/workflows/refresh.yml"><img src="https://github.com/nsorlop/fuelfinder-cv/actions/workflows/refresh.yml/badge.svg" alt="Precios actualizados"></a>
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT">
+</p>
+
 <p align="center"><img src="docs/img/slide_1.png" width="31%"> <img src="docs/img/slide_2.png" width="31%"> <img src="docs/img/slide_4.png" width="31%"></p>
 
 ## El dato
@@ -45,6 +51,8 @@ MITECO    coma decimal   marca /     medianas   JSON para la web
 
 La web es **estática** (GitHub Pages, Leaflet y OpenStreetMap): no hay servidor, y todo el cálculo de «cerca de mí» ocurre en el navegador.
 
+**Los precios del mapa se actualizan solos cada tres horas** con GitHub Actions (`python -m fuelfinder.build --map-only`). Ese modo refresca *solo* los precios actuales: el análisis semanal y las imágenes son los del post publicado y no cambian por su cuenta, para que la web siga coincidiendo con lo que se contó.
+
 ## Decisiones que importan
 
 **La clasificación es conservadora a propósito.** Solo cuentan como *marca* Repsol, Cepsa, Moeve, BP, Shell, Galp y Petronor, y como *low-cost* las cadenas cuyo modelo es el precio (Plenergy, Ballenoil, Petroprix, GasExpress, bonÀrea). Hipermercados, independientes y casos ambiguos —como Campsa Express, la marca barata de Repsol— quedan **fuera** de la comparación. Ante la duda, fuera: así ningún error de clasificación puede inflar la diferencia.
@@ -59,7 +67,7 @@ Revisar los rótulos a mano cambió el resultado: la mayor cadena low-cost de la
 
 - Las distancias son **en línea recta**, no por carretera.
 - El ahorro por depósito es una **mediana** para 50 litros de diésel.
-- Los precios del mapa son los del momento en que se generó la web; la fecha aparece en la propia página.
+- Los precios del mapa son los de la última actualización automática; la fecha aparece en la propia página. Si el servidor del Ministerio rechazara las peticiones desde GitHub, el mapa se quedaría con la última descarga buena y la fecha lo delataría: nunca se sobrescribe con una respuesta vacía.
 - La lógica de «cerca de ti» corre en el navegador (JavaScript) y no la cubren los tests de Python: se ha verificado a mano en el navegador, simulando ubicaciones.
 
 ## Reproducirlo
@@ -69,7 +77,7 @@ git clone https://github.com/nsorlop/fuelfinder-cv.git
 cd fuelfinder-cv
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -e ".[dev]"
-pytest -q                                  # 53 tests, sin red
+pytest -q                                  # 56 tests, sin red
 python -m fuelfinder.build 2026-09-21      # semana anterior a esa fecha
 python -m http.server --directory docs     # y abre http://localhost:8000
 ```

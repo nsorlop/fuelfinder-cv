@@ -1,6 +1,6 @@
 {
  "generado": "2026-09-21T14:46",
- "precios_mapa": "21/09/2026 14:46:08",
+ "precios_mapa": "21/09/2026 14:56:04",
  "semana": [
   "2026-09-14",
   "2026-09-20"
@@ -110,5 +110,6 @@
    "ahorro_deposito_diesel": 9.157142857142862
   }
  },
- "fuente": "Ministerio para la Transición Ecológica y el Reto Demográfico — Geoportal de Gasolineras (datos abiertos)"
+ "fuente": "Ministerio para la Transición Ecológica y el Reto Demográfico — Geoportal de Gasolineras (datos abiertos)",
+ "mapa_actualizado": "2026-09-21T14:56"
 }

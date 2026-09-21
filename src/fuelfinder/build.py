@@ -1,7 +1,12 @@
 """Genera los datos de la web y las imagenes para LinkedIn.
 
-Uso:  python -m fuelfinder.build            (usa la semana anterior a hoy)
-      python -m fuelfinder.build 2026-09-21 (semana anterior a esa fecha)
+Uso:  python -m fuelfinder.build              (semana anterior a hoy + mapa + imagenes)
+      python -m fuelfinder.build 2026-09-21   (semana anterior a esa fecha)
+      python -m fuelfinder.build --map-only   (SOLO precios actuales del mapa)
+
+--map-only es lo que ejecuta la actualizacion automatica. No toca el analisis
+semanal ni las imagenes: esas cifras son las del post y el carrusel, y la web
+tiene que seguir coincidiendo con ellas.
 """
 
 from __future__ import annotations
@@ -70,6 +75,39 @@ def _resumen_semana(dias: list[dict]) -> dict:
     }
 
 
+def merge_map_refresh(resumen: dict, precios_mapa: str | None, n_estaciones: int,
+                      ahora: str) -> dict:
+    """Devuelve una copia del resumen con solo los campos del mapa actualizados."""
+    nuevo = dict(resumen)
+    nuevo["precios_mapa"] = precios_mapa
+    nuevo["n_estaciones"] = n_estaciones
+    nuevo["mapa_actualizado"] = ahora
+    return nuevo
+
+
+def _escribir_mapa(mapa: list[Station]) -> None:
+    # Formato compacto: una fila por gasolinera, para que la web cargue rapido.
+    filas = [[s.lat, s.lon, s.rotulo, s.grupo, s.municipio, s.direccion, s.horario,
+              s.g95, s.diesel] for s in mapa]
+    (WEB / "data" / "stations.json").write_text(
+        json.dumps(filas, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+
+def refresh_map() -> dict:
+    """Refresca solo los precios actuales del mapa, conservando el analisis semanal."""
+    ruta = WEB / "data" / "summary.json"
+    resumen = json.loads(ruta.read_text(encoding="utf-8"))
+    actual = get_json(current_url())
+    mapa = _stations(actual)
+    if not mapa:
+        raise RuntimeError("La API no ha devuelto ninguna gasolinera: no se sobrescribe el mapa.")
+    resumen = merge_map_refresh(resumen, actual.get("Fecha"), len(mapa),
+                                datetime.datetime.now().isoformat(timespec="minutes"))
+    ruta.write_text(json.dumps(resumen, ensure_ascii=False, indent=1), encoding="utf-8")
+    _escribir_mapa(mapa)
+    return resumen
+
+
 def build(hoy: datetime.date) -> dict:
     RAW.mkdir(parents=True, exist_ok=True)
     (WEB / "data").mkdir(parents=True, exist_ok=True)
@@ -100,11 +138,7 @@ def build(hoy: datetime.date) -> dict:
     (WEB / "data" / "summary.json").write_text(
         json.dumps(resumen, ensure_ascii=False, indent=1), encoding="utf-8")
 
-    # Formato compacto: una fila por gasolinera, para que la web cargue rapido.
-    filas = [[s.lat, s.lon, s.rotulo, s.grupo, s.municipio, s.direccion, s.horario,
-              s.g95, s.diesel] for s in mapa]
-    (WEB / "data" / "stations.json").write_text(
-        json.dumps(filas, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    _escribir_mapa(mapa)
 
     from fuelfinder.charts import draw_all
     draw_all(resumen, WEB / "img")
@@ -113,6 +147,10 @@ def build(hoy: datetime.date) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] == "--map-only":
+        r = refresh_map()
+        print(f"Mapa actualizado: {r['n_estaciones']} gasolineras, precios de {r['precios_mapa']}")
+        return 0
     hoy = datetime.date.fromisoformat(argv[0]) if argv else datetime.date.today()
     r = build(hoy)
     v = r["provincias"]["Valencia"]
