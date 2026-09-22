@@ -82,6 +82,12 @@
   @keyframes pulse { 50% { box-shadow: 0 0 0 6px rgba(215,38,30,0); } }
 
   .field { margin-top: 16px; }
+  .order-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .info { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--muted); background: transparent;
+    color: var(--muted); font: italic 700 13px/1 var(--serif); cursor: pointer; display: inline-grid; place-items: center; padding: 0; }
+  .info:hover, .info[aria-expanded="true"] { border-color: var(--ink); color: var(--ink); }
+  .net-note { margin: 10px 0 0; padding: 9px 11px; background: var(--soft); border-left: 3px solid var(--ink);
+    font-size: 14px; line-height: 1.45; color: var(--text-2); }
   .field .t, .card .k, .listhead { display: block; font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase;
     letter-spacing: .1em; margin-bottom: 7px; }
   .radius { display: flex; align-items: center; gap: 10px; }
@@ -125,10 +131,6 @@
   th { color: var(--muted); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
   tr:last-child td { font-weight: 700; border-bottom: 2px solid var(--ink); }
 
-  .method { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; border-top: 1px solid var(--ink); padding-top: 18px; }
-  .method h2 { font-size: 26px; }
-  .method p, .method li { color: var(--text-2); font-size: 16px; line-height: 1.6; }
-  .method ul { padding-left: 18px; margin: 0; }
   footer { margin: 52px 0 0; background: var(--ink); color: #c9c3b8; }
   footer .wrap { padding-top: 22px; padding-bottom: 28px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; font-size: 14px; }
   footer b { display: block; color: #fff; font-weight: 700; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .1em; font-size: 11px; }
@@ -148,8 +150,7 @@
     .stage { grid-template-columns: 1fr; }
     .side { order: -1; max-height: none; }
     #map { height: 480px; }
-    .method { grid-template-columns: 1fr; gap: 10px; }
-    footer .wrap { grid-template-columns: 1fr 1fr; }
+      footer .wrap { grid-template-columns: 1fr 1fr; }
     .mast .date { display: none; }
   }
 </style>
@@ -199,11 +200,15 @@
 
       <div class="field">
         <span class="t">Ordenar por</span>
-        <div class="seg" role="group" aria-label="Ordenar por">
-          <button type="button" data-order="price" aria-pressed="true">Mejor precio</button>
-          <button type="button" data-order="distance" aria-pressed="false">Más cercana</button>
-          <button type="button" data-order="net" aria-pressed="false">Compensa más</button>
+        <div class="order-row">
+          <div class="seg" role="group" aria-label="Ordenar por">
+            <button type="button" data-order="price" aria-pressed="true">Mejor precio</button>
+            <button type="button" data-order="distance" aria-pressed="false">Más cercana</button>
+            <button type="button" data-order="net" aria-pressed="false">Compensa más</button>
+          </div>
+          <button type="button" class="info" id="info-net" aria-expanded="false" aria-controls="net-note" aria-label="Qué significa «Compensa más»">i</button>
         </div>
+        <p class="net-note" id="net-note" hidden>Suma al depósito la gasolina que gastas en ir y volver, en línea recta y a 6 L/100 km. Con radios grandes, la más barata puede no salir a cuenta.</p>
       </div>
 
       <div class="field">
@@ -231,25 +236,6 @@
   <section>
     <h2>Marca frente a low-cost, por provincia</h2>
     <div class="tbl"><table id="summary-table" class="num"></table></div>
-  </section>
-
-  <section class="method">
-    <div>
-      <h2>Cómo está hecho</h2>
-      <p>Los precios son los oficiales que publica el Ministerio para la Transición Ecológica y el Reto Demográfico en su Geoportal de Gasolineras (datos abiertos). Las cifras de marca frente a low-cost son la media de los siete días indicados, un registro por día.</p>
-      <p>El código es abierto y reproducible: <a href="https://github.com/nsorlop/fuelfinder-cv">github.com/nsorlop/fuelfinder-cv</a>.</p>
-    </div>
-    <div>
-      <h2>Qué hay que tener en cuenta</h2>
-      <ul>
-        <li><b>Marca:</b> Repsol, Cepsa, Moeve, BP, Shell, Galp y Petronor.</li>
-        <li><b>Low-cost:</b> Plenergy, Ballenoil, Petroprix, GasExpress, bonÀrea y las que se anuncian como low cost.</li>
-        <li>Hipermercados, independientes y casos dudosos (como Campsa Express) <b>no entran</b> en la comparación: ante la duda, fuera.</li>
-        <li>Las distancias son <b>en línea recta</b>, no por carretera.</li>
-        <li>El ahorro por depósito se calcula para 50 litros.</li>
-        <li><b>«Compensa más»</b> suma al depósito el combustible del desvío: ida y vuelta en línea recta a 6 L/100 km.</li>
-      </ul>
-    </div>
   </section>
 </div>
 
@@ -457,6 +443,15 @@
     <div><b>Gasolineras</b>${stations.length.toLocaleString("es-ES", { useGrouping: "always" })} en la Comunitat Valenciana</div>
     <div><b>Código</b><a href="https://github.com/nsorlop/fuelfinder-cv">nsorlop/fuelfinder-cv</a> · MIT</div>`;
 })();
+</script>
+<script>
+  (function () {
+    const btn = document.getElementById("info-net"), nota = document.getElementById("net-note");
+    const mostrar = (si) => { nota.hidden = !si; btn.setAttribute("aria-expanded", String(si)); };
+    btn.addEventListener("click", () => mostrar(nota.hidden));
+    document.querySelectorAll("[data-order]").forEach((b) =>
+      b.addEventListener("click", () => mostrar(b.dataset.order === "net")));
+  })();
 </script>
 </body>
 </html>
