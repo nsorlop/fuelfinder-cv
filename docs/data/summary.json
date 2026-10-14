@@ -1,11 +1,11 @@
 {
  "generado": "2026-09-21T15:24",
- "precios_mapa": "14/10/2026 13:48:37",
+ "precios_mapa": "14/10/2026 19:07:56",
  "semana": [
   "2026-09-14",
   "2026-09-20"
  ],
- "n_estaciones": 1323,
+ "n_estaciones": 1322,
  "radio_km": 3,
  "deposito_l": 50,
  "provincias": {
@@ -111,5 +111,5 @@
   }
  },
  "fuente": "Ministerio para la Transición Ecológica y el Reto Demográfico — Geoportal de Gasolineras (datos abiertos)",
- "mapa_actualizado": "2026-10-14T11:48"
+ "mapa_actualizado": "2026-10-14T17:08"
 }
